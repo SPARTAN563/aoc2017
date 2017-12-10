@@ -72,7 +72,7 @@ describe("day7", () => {
 
     describe("part1", () => {
         it("should calculate the solution", () => {
-            const parser = new day7.Parser("data/day7p1.txt")
+            const parser = new day7.Parser("data/day7.txt")
             const builder = new day7.Builder()
 
             let node = null;
@@ -110,7 +110,7 @@ describe("day7", () => {
         })
 
         describe("solution", () => {
-            const parser = new day7.Parser("data/day7p1.txt")
+            const parser = new day7.Parser("data/day7.txt")
             const builder = new day7.Builder()
 
             before(() => {
@@ -126,7 +126,24 @@ describe("day7", () => {
                 const balancer = new day7.Balancer()
                 balancer.visit(builder.roots[0])
 
-                console.log(require("util").inspect(balancer.unbalanced, false, 3))
+                const unbalanced = [].concat(balancer.unbalanced).sort((a, b) => {
+                    const aWeight = a.childWeights.reduce((max, c) => Math.max(c.weight, max), 0)
+                    const bWeight = b.childWeights.reduce((max, c) => Math.max(c.weight, max), 0)
+
+                    return aWeight > bWeight ? 1 : -1
+                })
+
+                const highest = unbalanced[0]
+
+                const freqDist = {}
+                highest.childWeights.forEach(c => freqDist[`${c.weight}`] = (freqDist[`${c.weight}`] || 0) + 1)
+
+                const anomalousWeight = parseInt(Object.keys(freqDist).find(k => freqDist[k] === 1))
+                const targetTotalWeight = parseInt(Object.keys(freqDist).find(k => k != anomalousWeight))
+                
+                const changeTarget = highest.childWeights.find(c => c.weight == anomalousWeight)
+                console.log(`Node ${changeTarget.id} has total weight ${changeTarget.weight}, should be ${targetTotalWeight}`)
+                console.log(`Node ${changeTarget.id} should have own weight of ${changeTarget.selfWeight - (anomalousWeight - targetTotalWeight)}`)
             })
         })
     })

@@ -47,7 +47,7 @@ describe("day6", () => {
         })
 
         it("should calculate the solution", () => {
-            const blocks = fs.readFileSync("data/day6p1.txt", "utf8").split("\t").map(parseFloat)
+            const blocks = fs.readFileSync("data/day6.txt", "utf8").split("\t").map(parseFloat)
             const sm = new SM(blocks)
 
             const stateSet = new Set()
@@ -59,7 +59,7 @@ describe("day6", () => {
                 cycles++
             }
 
-            console.log(cycles)
+            console.log(`Cycles: ${cycles}`)
         })
     })
 
@@ -81,7 +81,7 @@ describe("day6", () => {
         })
 
         it("should find the solution", () => {
-            const blocks = fs.readFileSync("data/day6p1.txt", "utf8").split("\t").map(parseFloat)
+            const blocks = fs.readFileSync("data/day6.txt", "utf8").split("\t").map(parseFloat)
             const sm = new SM(blocks)
             const stateSet = {}
 
@@ -93,7 +93,7 @@ describe("day6", () => {
             }
 
             const length = cycles - stateSet[JSON.stringify(sm.blocks)]
-            console.log(length)
+            console.log(`Length: ${length}`)
         })
     })
 })
