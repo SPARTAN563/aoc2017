@@ -10,7 +10,7 @@ describe("day2", () => {
         })
 
         it("should calculate the checksum for the test data", () => {
-            const spreadsheet = fs.readFileSync("data/day2p1.txt", 'utf8')
+            const spreadsheet = fs.readFileSync("data/day2.txt", 'utf8')
             console.log(checksum.part1(spreadsheet))
         })
     })
@@ -22,7 +22,7 @@ describe("day2", () => {
         })
         
         it("should calculate the checksum for the test data", () => {
-            const spreadsheet = fs.readFileSync("data/day2p2.txt", "utf8")
+            const spreadsheet = fs.readFileSync("data/day2.txt", "utf8")
             console.log(checksum.part2(spreadsheet))
         })
     })
