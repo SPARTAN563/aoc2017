@@ -22,10 +22,6 @@ describe("day3", () => {
         it("should return 31 for cell 1024", () => {
             chai.expect(distance(1024)).to.eql(31)
         })
-
-        it("should calculate the result", () => {
-            console.log(distance(347991))
-        })
     })
 
     describe("part2", () => {
@@ -36,10 +32,6 @@ describe("day3", () => {
 
         it("should return 304 for value 180", () => {
             chai.expect(firstGreater(180)).to.eql(304)
-        })
-
-        it("should calculate the result", () => {
-            console.log(firstGreater(347991))
         })
     })
 })

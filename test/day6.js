@@ -45,22 +45,6 @@ describe("day6", () => {
                 chai.expect(cycles).to.eql(5)
             })
         })
-
-        it("should calculate the solution", () => {
-            const blocks = fs.readFileSync("data/day6.txt", "utf8").split("\t").map(parseFloat)
-            const sm = new SM(blocks)
-
-            const stateSet = new Set()
-            
-            let cycles = 0;
-            while(!stateSet.has(JSON.stringify(sm.blocks))) {
-                stateSet.add(JSON.stringify(sm.blocks))
-                sm.rebalance()
-                cycles++
-            }
-
-            console.log(`Cycles: ${cycles}`)
-        })
     })
 
     describe("part2", () => {
@@ -78,22 +62,6 @@ describe("day6", () => {
 
             const length = cycles - stateSet[JSON.stringify(sm.blocks)]
             chai.expect(length).to.eql(4)
-        })
-
-        it("should find the solution", () => {
-            const blocks = fs.readFileSync("data/day6.txt", "utf8").split("\t").map(parseFloat)
-            const sm = new SM(blocks)
-            const stateSet = {}
-
-            let cycles = 0;
-            while(stateSet[JSON.stringify(sm.blocks)] === undefined) {
-                stateSet[JSON.stringify(sm.blocks)] = cycles
-                sm.rebalance()
-                cycles++
-            }
-
-            const length = cycles - stateSet[JSON.stringify(sm.blocks)]
-            console.log(`Length: ${length}`)
         })
     })
 })

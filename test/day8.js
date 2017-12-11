@@ -27,19 +27,6 @@ describe("day8", () => {
                 chai.expect(interpreter.registers).to.eql({a: 1, c: -10})
             })
         })
-
-        describe("problem", () => {
-            const interpreter = new day8.Interpreter()
-            const instructions = fs.readFileSync("data/day8.txt", "utf8").split("\n").map(x => x.trim())
-
-            it("should calculate the largest register", () => {
-                instructions.forEach(instruction => interpreter.evaluate(instruction))
-                chai.expect(interpreter.registers).to.not.eql({})
-
-                const max = Object.keys(interpreter.registers).map(k => interpreter.registers[k]).sort((a, b) => a > b ? 1 : -1).reverse()[0]
-                console.log("Max register at end: %d", max)
-            })
-        })
     })
 
     describe("part2", () => {
@@ -57,23 +44,6 @@ describe("day8", () => {
                 })
 
                 chai.expect(globalMax).to.eql(10)
-            })
-        })
-
-        describe("problem", () => {
-            const interpreter = new day8.Interpreter()
-            const instructions = fs.readFileSync("data/day8.txt", "utf8").split("\n").map(x => x.trim())
-            
-            it("should calculate the result", () => {
-                let globalMax = Number.MIN_SAFE_INTEGER
-                instructions.forEach(instruction => {
-                    interpreter.evaluate(instruction)
-                    const max = Object.keys(interpreter.registers).map(k => interpreter.registers[k]).sort((a, b) => a > b ? 1 : -1).reverse()[0]
-                    if (max === undefined) return
-                    globalMax = Math.max(max, globalMax)
-                })
-
-                console.log("Max register ever: %d", globalMax)
             })
         })
     })

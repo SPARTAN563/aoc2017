@@ -15,10 +15,6 @@ describe("day4", () => {
                 chai.expect(validate(c)).to.eql(cases[c])
             })
         })
-
-        it("should calculate the results", () => {
-            console.log(`${fs.readFileSync("data/day4.txt", "utf8").split("\n").filter(x => validate(x)).length} valid`)
-        })
     })
 
     describe("part2", () => {
@@ -35,10 +31,6 @@ describe("day4", () => {
             it(`should mark '${c}' as ${cases[c] ? 'valid': 'invalid'}`, () => {
                 chai.expect(validate(c, transform)).to.eql(cases[c])
             })
-        })
-
-        it("should calculate the results", () => {
-            console.log(`${fs.readFileSync("data/day4.txt", "utf8").split("\n").filter(x => validate(x, transform)).length} valid`)
         })
     })
 })

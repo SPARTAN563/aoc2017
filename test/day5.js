@@ -15,11 +15,6 @@ describe("day5", () => {
 
             chai.expect(exitVelocity(list)).to.eql(5)
         })
-
-        it("should calculate the result", () => {
-            const list = fs.readFileSync("data/day5.txt", "utf8").split("\n").map(x => x.trim()).map(parseFloat)
-            console.log(`Exit in ${exitVelocity(list)} steps`)
-        })
     })
 
     describe("part2", () => {
@@ -34,11 +29,6 @@ describe("day5", () => {
             ]
 
             chai.expect(exitVelocity(list, mutator)).to.eql(10)
-        })
-
-        it("should calculate the result", () => {
-            const list = fs.readFileSync("data/day5.txt", "utf8").split("\n").map(x => x.trim()).map(parseFloat)
-            console.log(`Exit in ${exitVelocity(list, mutator)} steps`)
         })
     })
 })

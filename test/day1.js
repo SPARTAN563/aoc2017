@@ -19,12 +19,6 @@ describe("day1", () => {
         it("91212129 should produce 9", () => {
             chai.expect(captcha.part1("91212129")).to.eql(9)
         })
-
-        it("should calculate the result", () => {
-            const input = fs.readFileSync("data/day1.txt", "utf8").trim()
-            chai.expect(captcha.part1(input)).to.exist
-            console.log(`Captcha: ${captcha.part1(input)}`)
-        })
     })
 
     describe("part2", () => {
@@ -47,11 +41,6 @@ describe("day1", () => {
         
         it("12131415 should produce 12", () => {
             chai.expect(captcha.part2("12131415")).to.eql(4)
-        })
-
-        it("should calculate the result", () => {
-            const input = fs.readFileSync("data/day1.txt", "utf8").trim()
-            console.log(`Captcha: ${captcha.part2(input)}`)
         })
     })
 })

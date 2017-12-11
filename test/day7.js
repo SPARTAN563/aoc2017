@@ -70,22 +70,6 @@ describe("day7", () => {
         })
     })
 
-    describe("part1", () => {
-        it("should calculate the solution", () => {
-            const parser = new day7.Parser("data/day7.txt")
-            const builder = new day7.Builder()
-
-            let node = null;
-            while(node = parser.next()) {
-                builder.attach(node)
-            }
-
-            chai.expect(builder.roots).to.have.length(1)
-            const root = builder.roots[0]
-            console.log(root.id)
-        })
-    })
-
     describe("part2", () => {
         describe("example", () => {
             const parser = new day7.Parser("data/day7e1.txt")
@@ -106,44 +90,6 @@ describe("day7", () => {
 
                 chai.expect(balancer.unbalanced).to.have.length(1)
                 chai.expect(balancer.unbalanced[0]).to.have.property("id").eql("tknk")
-            })
-        })
-
-        describe("solution", () => {
-            const parser = new day7.Parser("data/day7.txt")
-            const builder = new day7.Builder()
-
-            before(() => {
-                let node = null;
-                while(node = parser.next()) {
-                    builder.attach(node)
-                }
-
-                chai.expect(builder.roots).to.have.length(1)
-            })
-
-            it("should find the unbalanced nodes", () => {
-                const balancer = new day7.Balancer()
-                balancer.visit(builder.roots[0])
-
-                const unbalanced = [].concat(balancer.unbalanced).sort((a, b) => {
-                    const aWeight = a.childWeights.reduce((max, c) => Math.max(c.weight, max), 0)
-                    const bWeight = b.childWeights.reduce((max, c) => Math.max(c.weight, max), 0)
-
-                    return aWeight > bWeight ? 1 : -1
-                })
-
-                const highest = unbalanced[0]
-
-                const freqDist = {}
-                highest.childWeights.forEach(c => freqDist[`${c.weight}`] = (freqDist[`${c.weight}`] || 0) + 1)
-
-                const anomalousWeight = parseInt(Object.keys(freqDist).find(k => freqDist[k] === 1))
-                const targetTotalWeight = parseInt(Object.keys(freqDist).find(k => k != anomalousWeight))
-                
-                const changeTarget = highest.childWeights.find(c => c.weight == anomalousWeight)
-                console.log(`Node ${changeTarget.id} has total weight ${changeTarget.weight}, should be ${targetTotalWeight}`)
-                console.log(`Node ${changeTarget.id} should have own weight of ${changeTarget.selfWeight - (anomalousWeight - targetTotalWeight)}`)
             })
         })
     })
