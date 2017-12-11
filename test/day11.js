@@ -2,7 +2,7 @@ const chai = require("chai")
 const day11 = require("../day11")
 const fs = require("fs")
 
-describe.only("day11", () => {
+describe("day11", () => {
     describe("part1", () => {
         describe("example", () => {
             const examples = {
