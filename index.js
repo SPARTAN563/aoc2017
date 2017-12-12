@@ -117,3 +117,14 @@ puzzle("day8", (data) => {
     console.log(`Part 1: Maximum register value is ${max}`)
     console.log(`Part 2: Maximum register value at any point was ${globalMax}`)
 })
+
+puzzle("day12", () => {
+    const day12 = require("./day12")
+    const parser = new day12.Parser("data/day12.txt")
+    const groups = day12.group(parser)
+    
+    const groupWith0 = groups.find(x => x.has(0))
+    console.log(`Part 1: Group with program 0 has ${groupWith0.size} elements`)
+
+    console.log(`Part 2: Total number of groups is ${groups.length}`)
+})
