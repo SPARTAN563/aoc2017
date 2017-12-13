@@ -1,7 +1,7 @@
 const chai = require("chai")
 const day12 = require("../day12")
 
-describe.only("day12", () => {
+describe("day12", () => {
     describe("part1", () => {
         it("should split the example into two groups", () => {
             const parser = new day12.Parser("data/day12e.txt")

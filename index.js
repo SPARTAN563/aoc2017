@@ -128,3 +128,13 @@ puzzle("day12", () => {
 
     console.log(`Part 2: Total number of groups is ${groups.length}`)
 })
+
+puzzle("day13", () => {
+    const day13 = require("./day13")
+    const parser = new day13.Parser("data/day13.txt")
+    const layers = day13.buildLayers(parser)
+    
+    console.log(`Part 1: Trip severity is ${day13.severity(layers)}`)
+
+    console.log(`Part 2: Evasion requires a delay of ${day13.stealthDelay(layers,100000000)}ps`)
+})
