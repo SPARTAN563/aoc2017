@@ -1,7 +1,9 @@
 const chai = require("chai")
 const day15 = require("../day15")
 
-describe("day15", () => {
+describe("day15", function() {
+    this.timeout(10000)
+    
     describe("part1", () => {
         describe("generator A", () => {
             const genA = new day15.Generator(65, 16807)

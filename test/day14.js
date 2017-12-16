@@ -1,7 +1,9 @@
 const chai = require("chai")
 const day14 = require("../day14")
 
-describe("day14", () => {
+describe("day14", function() {
+    this.timeout(10000)
+    
     describe("part1", () => {
         describe("buildGrid", () => {
             it("should build the example grid", () => {
