@@ -166,3 +166,23 @@ puzzle("day15", () => {
     judge = new day15.Judge(genA2, genB2)
     console.log(`Part 2: ${judge.multiSample(5000000)} matches found in the first 5M filtered samples`)
 })
+
+puzzle("day16", (data) => {
+    const day16 = require("./day16")
+    const moves = data.trim().split(",")
+    let positions = day16.dance(moves)
+    console.log(`Part 1: Final positions are '${positions}'`)
+
+    const memoize = {}
+    for (let i = 1; i < 1000000000; i++) {
+        if (!memoize[positions]) {
+            const newPositions = day16.dance(moves, positions)
+            memoize[positions] = newPositions
+        }
+
+        positions = memoize[positions]
+
+    }
+    console.log(`Part 2: Final positions after 1B dances are '${positions}'`)
+
+})
