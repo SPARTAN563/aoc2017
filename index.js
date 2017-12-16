@@ -1,11 +1,15 @@
 const fs = require("fs")
 
-function puzzle(name, execute) {
-    console.log(`${name}`)
+const filters = process.argv.slice(2)
 
-    const input = execute.length && fs.existsSync(`data/${name}.txt`) && fs.readFileSync(`data/${name}.txt`, "utf8").trim()
-    execute(input)
-    console.log()
+function puzzle(name, execute) {
+    if (!filters.length || !!~filters.indexOf(name)) {
+        const input = execute.length && fs.existsSync(`data/${name}.txt`) && fs.readFileSync(`data/${name}.txt`, "utf8").trim()
+    
+        console.log(`${name}`)
+        execute(input)
+        console.log()
+    }
 }
 
 puzzle("day1", (data) => {
@@ -137,4 +141,28 @@ puzzle("day13", () => {
     console.log(`Part 1: Trip severity is ${day13.severity(layers)}`)
 
     console.log(`Part 2: Evasion requires a delay of ${day13.stealthDelay(layers,100000000)}ps`)
+})
+
+puzzle("day14", () => {
+    const day14 = require("./day14")
+    const grid = day14.buildGrid("hwlqcszp")
+    console.log(`Part 1: There are ${day14.countUsed(grid)} used squares`)
+
+    console.log(`Part 2: There are ${day14.findRegions(grid).length} regions`)
+})
+
+puzzle("day15", () => {
+    const day15 = require("./day15")
+    const genA = new day15.Generator(883, 16807)
+    const genB = new day15.Generator(879, 48271)
+
+    let judge = new day15.Judge(genA, genB)
+    console.log(`Part 1: ${judge.multiSample(40000000)} matches found in the first 40M samples`)
+
+    genA.reseed(883)
+    genB.reseed(879)
+    const genA2 = new day15.Filter(genA, x => x % 4 === 0)
+    const genB2 = new day15.Filter(genB, x => x % 8 === 0)
+    judge = new day15.Judge(genA2, genB2)
+    console.log(`Part 2: ${judge.multiSample(5000000)} matches found in the first 5M filtered samples`)
 })

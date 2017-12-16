@@ -5,6 +5,7 @@
   "main": "index.js",
   "private": true,
   "scripts": {
+    "start": "node index.js",
     "test": "mocha"
   },
   "author": "Benjamin Pannell <admin@sierrasoftworks.com>",
