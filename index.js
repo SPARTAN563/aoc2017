@@ -1,4 +1,5 @@
 const fs = require("fs")
+const progress = require("progress")
 
 const filters = process.argv.slice(2)
 
@@ -185,4 +186,20 @@ puzzle("day16", (data) => {
     }
     console.log(`Part 2: Final positions after 1B dances are '${positions}'`)
 
+})
+
+puzzle("day17", () => {
+    const day17 = require("./day17")
+    const spinlock = new day17.Spinlock()
+    while(spinlock.max() < 2017)
+        spinlock.next(335)
+
+    console.log(`Part 1: The next value in the buffer is ${spinlock.getNext()}`)
+
+    const predictive = new day17.SpinlockPredictive([0, 1])
+    while(predictive.max() < 50000000) {
+        predictive.next(335)
+    }
+
+    console.log(`Part 2: The value after 0 in the buffer is ${predictive.getRootNext()}`)
 })
