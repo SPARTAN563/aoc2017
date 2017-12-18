@@ -203,3 +203,40 @@ puzzle("day17", () => {
 
     console.log(`Part 2: The value after 0 in the buffer is ${predictive.getRootNext()}`)
 })
+
+puzzle("day18", data => {
+    const day18 = require("./day18")
+    const instructions = data.split("\n").map(x => x.trim())
+
+    {
+        const hub = new day18.LoopbackHub()
+        const interpreter = new day18.Interpreter(instructions, hub.subscribe(), {safeReceive: 1})
+
+        while(true) {
+            const result = interpreter.next()
+            if (!result) break
+            if (result.type === "rcv" && result.result) {
+                const sendQueue = interpreter.state.hub.queue
+                const lastValue = sendQueue[sendQueue.length - 1]
+                console.log(`Part 1: The first rcv instruction received ${lastValue.value}`)
+                break
+            }
+        }
+    }
+
+    {
+        const hub = new day18.Hub()
+        const int1 = new day18.Interpreter(instructions, hub.subscribe(), { p: 0 })
+        const int2 = new day18.Interpreter(instructions, hub.subscribe(), { p: 1 })
+        const exec = new day18.ParallelExecutor(int1, int2)
+
+        const subscriber = hub.subscribe()
+
+        let i = 0
+        let result = null
+        while(result = exec.next());
+
+        const sentMessages = subscriber.queue.filter(msg => msg.client === int2.state.hub).length
+        console.log(`Part 2: Program 1 sent ${sentMessages} messages`)
+    }
+})
