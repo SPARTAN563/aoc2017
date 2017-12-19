@@ -240,3 +240,17 @@ puzzle("day18", data => {
         console.log(`Part 2: Program 1 sent ${sentMessages} messages`)
     }
 })
+
+puzzle("day19", () => {
+    const data = fs.readFileSync("data/day19.txt", "utf8")
+    const day19 = require("./day19")
+    const field = day19.parseField(data)
+    const walker = new day19.Walker(field)
+
+    let steps = 1;
+    while(walker.next())
+        steps++
+
+    console.log(`Part 1: Full path is '${walker.path.join("")}'`)
+    console.log(`Part 2: ${steps} steps taken`)
+})
