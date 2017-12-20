@@ -6,7 +6,8 @@
   "private": true,
   "scripts": {
     "start": "node index.js",
-    "test": "mocha"
+    "test": "mocha",
+    "dev": "mocha -w"
   },
   "author": "Benjamin Pannell <admin@sierrasoftworks.com>",
   "license": "MIT",

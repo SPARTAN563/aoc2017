@@ -254,3 +254,82 @@ puzzle("day19", () => {
     console.log(`Part 1: Full path is '${walker.path.join("")}'`)
     console.log(`Part 2: ${steps} steps taken`)
 })
+
+puzzle("day20", data => {
+    const day20 = require("./day20")
+    const parser = new day20.Parser()
+
+    {
+        const pf = parser.parseParticleField(data)
+        const center = new day20.Vector(0,0,0)
+
+        pf.next(100000)
+        console.log(`Part 1: Nearest after 100k steps is '${pf.nearest(center).id}'`)
+    }
+
+    {
+        console.log(`Part 2: Brute Force Approach`)
+        /*
+         * This approach simply runs the simulation for a number of steps in
+         * the hopes that all collisions will have been resolved at the
+         * conclusion of those steps.
+         * 
+         * At each step, we evaluate the collisions state for the field and
+         * remove any colliding particles before advancing the simulation to
+         * the next step.
+         * 
+         * For fields with a low number of collision steps and a bias towards
+         * early collisions, this is a very fast solution thanks to the basic
+         * integer comparisons and arithmetic required to implement it.
+         * 
+         * For fields with a very long period over which collisions occur, or
+         * where collisions are biased towards the end of the collision space,
+         * this approach can be very costly due to its O(N^2) complexity.
+         */
+        const pf = parser.parseParticleField(data)
+        
+        let steps = 0
+        const stepCount = 500
+        while(steps++ < stepCount) {
+            const collisions = pf.findCollisions()
+            pf.remove(...collisions)
+            pf.next()
+        }
+
+        console.log(`Part 2: ${pf.particles.length} remaining after ${steps} steps`)
+        console.log()
+    }
+
+    {
+        console.log(`Part 2: Quadratic Search Approach`)
+        /*
+         * This approach uses a quadratic search algorithm to precisely
+         * identify the steps at which collisions occur by identifying
+         * the quadratic roots describing the collision positions for
+         * each particle pair. It then proceeds to "jump" the simulation
+         * to those steps and perform collision detection there.
+         * 
+         * This approach is initially quite costly due to the floating
+         * point arithmetic required to calculate the quadratic roots,
+         * however its computational complexity does not increase with
+         * the collision window's duration - making it particularly well
+         * suited to situations in which collisions are biased late, or
+         * occur late in the cycle.
+         * 
+         * It is also a significantly more precise approach than the brute
+         * force one, being able to identify all possible collisions without
+         * the risk of guessing your step count too low.
+         */
+        const pf = parser.parseParticleField(data)
+        
+        const collisionSteps = pf.findCollisionSteps()
+        collisionSteps.reduce((last, current) => {
+            pf.next(current - last)
+            const collisions = pf.findCollisions()
+            pf.remove(...collisions)
+            return current
+        }, 0)
+
+        console.log(`Part 2: ${pf.particles.length} remaining after ${Math.max(...collisionSteps)} steps`)
+    }
+})
