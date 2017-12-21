@@ -333,3 +333,36 @@ puzzle("day20", data => {
         console.log(`Part 2: ${pf.particles.length} remaining after ${Math.max(...collisionSteps)} steps`)
     }
 })
+
+puzzle("day21", imageData => {
+    const day21 = require("./day21")
+    const rulesData = fs.readFileSync("data/day21r.txt", "utf8")
+    
+    const image = new day21.ImageParser().parseImage(imageData.split("\n"))
+    const rules = new day21.RuleParserSingleLine().parseRules(rulesData)
+    const enhancer = new day21.Enhancer(rules)
+    
+    {
+        let enhanced = image
+        for (let i = 0; i < 5; i++) {
+            enhanced = enhancer.enhance(enhanced)
+        }
+        
+        const onPixels = enhanced.pixels.reduce((sum, row) => {
+            return sum + row.reduce((sum, px) => sum + (px ? 1 : 0), 0)
+        }, 0)
+        console.log(`Part 1: ${onPixels} are on after 5 iterations (out of ${enhanced.size**2})`)
+    }
+    
+    {
+        let enhanced = image
+        for (let i = 0; i < 18; i++) {
+            enhanced = enhancer.enhance(enhanced)
+        }
+        
+        const onPixels = enhanced.pixels.reduce((sum, row) => {
+            return sum + row.reduce((sum, px) => sum + (px ? 1 : 0), 0)
+        }, 0)
+        console.log(`Part 2: ${onPixels} are on after 18 iterations (out of ${enhanced.size**2})`)
+    }
+})
