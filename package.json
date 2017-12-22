@@ -16,6 +16,8 @@
     "mocha": "^4.0.1"
   },
   "dependencies": {
+    "colors": "^1.1.2",
+    "moment": "^2.20.1",
     "progress": "^2.0.0"
   }
 }

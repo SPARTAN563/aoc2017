@@ -18,14 +18,6 @@ describe("day11", () => {
                 })
             })
         })
-
-        describe("problem", () => {
-            it("should calculate the solution", () => {
-                const input = fs.readFileSync("data/day11.txt", "utf8").trim().split(",")
-                const path = day11.steps(input)
-                console.log(`Total steps for shortest path: ${path.length}`)
-            })
-        })
     })
 
     describe("part2", () => {
@@ -41,14 +33,6 @@ describe("day11", () => {
                 it(`${example} should get ${examples[example]} steps away at most`, () => {
                     chai.expect(day11.maxDistance(example.split(","))).to.eql(examples[example])
                 })
-            })
-        })
-
-        describe("problem", () => {
-            it("should calculate the solution", () => {
-                const input = fs.readFileSync("data/day11.txt", "utf8").trim().split(",")
-                const maxDist = day11.maxDistance(input)
-                console.log(`Maximum distance: ${maxDist}`)
             })
         })
     })

@@ -218,18 +218,6 @@ describe("day9", () => {
                 })
             })
         })
-
-        describe("problem", () => {
-            it("should calculate the solution", () => {
-                const input = fs.readFileSync("data/day9.txt", "utf8")
-                const parser = new day9.Parser()
-                parser.parse(input)
-                chai.expect(parser.current()).to.have.property("type").eql("root")
-                chai.expect(parser.current()).to.have.property("children").with.length(1)
-
-                console.log("Total score for input: %d", scoreGroups(parser.current().children[0]))
-            })
-        })
     })
 
     describe("part2", () => {
@@ -261,18 +249,6 @@ describe("day9", () => {
 
                     chai.expect(countGarbage(parser.current())).to.eql(examples[example])
                 })
-            })
-        })
-
-        describe("problem", () => {
-            it("should find the solution", () => {
-                const input = fs.readFileSync("data/day9.txt", "utf8")
-                const parser = new day9.Parser()
-                parser.parse(input)
-                chai.expect(parser.current()).to.have.property("type").eql("root")
-                chai.expect(parser.current()).to.have.property("children").with.length(1)
-
-                console.log("Total garbage in input: %d", countGarbage(parser.current().children[0]))
             })
         })
     })

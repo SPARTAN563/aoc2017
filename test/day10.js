@@ -42,17 +42,6 @@ describe("day10", () => {
                 chai.expect(day10.round(data, state)).have.property("state").eql([3, 4, 2, 1, 0])
             })
         })
-
-        describe("problem", () => {
-            const lengths = fs.readFileSync("data/day10.txt", "utf8").split(",").map(x => x.trim()).map(parseFloat)
-
-            it("should find the solution", () => {
-                let state = new Array(256).fill(0).map((x, i) => i)
-                const hash = day10.round(lengths, state).state
-                chai.expect(hash).to.have.length(256)
-                console.log(`Hash product: ${hash[0] * hash[1]}`)
-            })
-        })
     })
 
     describe("part2", () => {
@@ -69,14 +58,6 @@ describe("day10", () => {
                 it(`should calculate the right hash for '${str}'`, () => {
                     chai.expect(day10.hash(str)).to.eql(hashes[str])
                 })
-            })
-        })
-
-        describe("problem", () => {
-            const data = fs.readFileSync("data/day10.txt", "utf8")
-
-            it("should find the solution", () => {
-                console.log(`Input hash: ${day10.hash(data)}`)
             })
         })
     })

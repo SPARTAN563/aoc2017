@@ -1,53 +1,109 @@
+require("colors")
 const fs = require("fs")
 const progress = require("progress")
+const moment = require("moment")
 
-const filters = process.argv.slice(2)
+const puzzleFilters = process.argv.slice(2).filter(x => !!~x.indexOf("day"))
+const partFilters = process.argv.slice(2).filter(x => !!~x.indexOf("part"))
 
+/**
+ * 
+ * @param {string} name The name of the puzzle being executed
+ * @param {(data: string) => void} execute The function to execute for this puzzle
+ */
 function puzzle(name, execute) {
-    if (!filters.length || !!~filters.indexOf(name)) {
-        const input = execute.length && fs.existsSync(`data/${name}.txt`) && fs.readFileSync(`data/${name}.txt`, "utf8").trim()
-    
-        console.log(`${name}`)
+    if (!puzzleFilters.length || !!~puzzleFilters.indexOf(name)) {
+        const input = execute.length && fs.existsSync(`data/${name}.txt`) && fs.readFileSync(`data/${name}.txt`, "utf8")
+        
+        console.log(`${name}`.green)
         execute(input)
         console.log()
     }
 }
 
+/**
+ * 
+ * @param {number} number The number of the part beinge executed
+ * @param {() => any} execute The function to execute for this part
+ */
+function part(number, execute) {
+    if (!partFilters.length || !!~partFilters.indexOf(`part${number}`)) {
+        console.log(`  Part ${number}`.blue)
+        const result = execute()
+        console.log(`    ${'=>'.grey} ${JSON.stringify(result)} ${`(Part ${number})`.grey}`)
+    }
+}
+
+/**
+ * 
+ * @param {string} name The name of the process being executed
+ * @param {number} count The total number of iterations to perform
+ * @param {number} batchSize The size of each batch to be executed
+ * @param {(batchSize: number, currentSum: number, total: number) => void} action An action to execute for each batch
+ */
+function runIterations(name, count, batchSize, action) {
+    let bar = new progress(`  ${name} [:bar] (:current/:total) :eta s`.grey, {
+        total: count,
+        width: 80
+    })
+
+    bar.render()
+
+    let startTime = new Date()
+    for(let i = batchSize; i <= count; i+=batchSize) {
+        action(batchSize, i, count)
+        bar.tick(batchSize)
+        bar.render()
+    }
+
+    let duration = moment.duration(moment().diff(startTime))
+
+    console.log(`  ${name} completed after %s`.grey, `${duration.asSeconds()}s`.red)
+    bar.terminate()
+}
+
 puzzle("day1", (data) => {
     const day1 = require("./day1")
-    console.log(`Part 1 Captcha: ${day1.part1(data)}`)
-    console.log(`Part 2 Captcha: ${day1.part2(data)}`)
+    part(1, () => day1.part1(data))
+    part(2, () => day1.part2(data))
 })
 
 puzzle("day2", (data) => {
     const day2 = require("./day2")
-    console.log(`Part 1 Checksum: ${day2.part1(data)}`)
-    console.log(`Part 2 Checksum: ${day2.part2(data)}`)
+    part(1, () => day2.part1(data))
+    part(2, () => day2.part2(data))
 })
 
 puzzle("day3", () => {
     const data = 347991
-    const distance = require("./day3p1")
-    console.log(`Part 1 Distance: ${distance(data)}`)
-    const firstGreater = require("./day3p2")
-    console.log(`Part 2 First Greater: ${firstGreater(data)}`)
+    part(1, () => {
+        const distance = require("./day3p1")
+        return distance(data)
+    })
+
+    part(2, () => {
+        const firstGreater = require("./day3p2")
+        return firstGreater(data)
+    })
 })
 
 puzzle("day4", (data) => {
     const validate = require("./day4")
-    console.log(`Part 1: ${data.split("\n").filter(x => validate(x)).length} valid`)
-    
-    const transform = x => Array.prototype.slice.call(x).sort().join("")
-    console.log(`Part 2: ${data.split("\n").filter(x => validate(x, transform)).length} valid`)
+    part(1, () => data.split("\n").filter(x => validate(x)).length)
+    part(2, () => {
+        const transform = x => Array.prototype.slice.call(x).sort().join("")
+        return data.split("\n").filter(x => validate(x, transform)).length
+    })
 })
 
 puzzle("day5", (data) => {
     const dataArray = data.split("\n").map(x => parseFloat(x.trim()))
     const exitVelocity = require("./day5")
-    console.log(`Part 1: Exits in ${exitVelocity(dataArray)} steps`)
-
-    const mutator = x => x >= 3 ? x - 1 : x + 1
-    console.log(`Part 2: Exits in ${exitVelocity(dataArray, mutator)} steps`)
+    part(1, () => exitVelocity(dataArray))
+    part(2, () => {
+        const mutator = x => x >= 3 ? x - 1 : x + 1
+        return exitVelocity(dataArray, mutator)
+    })
 })
 
 puzzle("day6", (data) => {
@@ -64,10 +120,8 @@ puzzle("day6", (data) => {
         cycles++
     }
 
-    console.log(`Part 1: Loop detected in ${cycles} steps`)
-
-    const length = cycles - stateSet[JSON.stringify(sm.blocks)]
-    console.log(`Part 2: Loop length is ${length} steps`)
+    part(1, () => cycles)
+    part(2, () => length = cycles - stateSet[JSON.stringify(sm.blocks)])
 })
 
 puzzle("day7", () => {
@@ -75,33 +129,40 @@ puzzle("day7", () => {
     const parser = new day7.Parser("data/day7.txt")
     const builder = new day7.Builder()
 
-    let node = null;
-    while(node = parser.next()) {
-        builder.attach(node)
-    }
-    console.log(`Part 1: Root node is ${builder.roots[0].id}`)
+    part(1, () => {
+        let node = null;
+        runIterations("Part 1", parser.lines.length, 1, () => {
+            if(node = parser.next())
+                builder.attach(node)
+        })
 
-    const balancer = new day7.Balancer()
-    balancer.visit(builder.roots[0])
-
-    const unbalanced = [].concat(balancer.unbalanced).sort((a, b) => {
-        const aWeight = a.childWeights.reduce((max, c) => Math.max(c.weight, max), 0)
-        const bWeight = b.childWeights.reduce((max, c) => Math.max(c.weight, max), 0)
-
-        return aWeight > bWeight ? 1 : -1
+        return builder.roots[0].id
     })
 
-    const highest = unbalanced[0]
+    part(2, () => {
+        const balancer = new day7.Balancer()
+        balancer.visit(builder.roots[0])
 
-    const freqDist = {}
-    highest.childWeights.forEach(c => freqDist[`${c.weight}`] = (freqDist[`${c.weight}`] || 0) + 1)
+        const unbalanced = [].concat(balancer.unbalanced).sort((a, b) => {
+            const aWeight = a.childWeights.reduce((max, c) => Math.max(c.weight, max), 0)
+            const bWeight = b.childWeights.reduce((max, c) => Math.max(c.weight, max), 0)
 
-    const anomalousWeight = parseInt(Object.keys(freqDist).find(k => freqDist[k] === 1))
-    const targetTotalWeight = parseInt(Object.keys(freqDist).find(k => k != anomalousWeight))
-    
-    const changeTarget = highest.childWeights.find(c => c.weight == anomalousWeight)
-    console.log(`Part 2: Node ${changeTarget.id} has total weight ${changeTarget.weight}, should be ${targetTotalWeight}`)
-    console.log(`Part 2: Node ${changeTarget.id} should have own weight of ${changeTarget.selfWeight - (anomalousWeight - targetTotalWeight)}`)
+            return aWeight > bWeight ? 1 : -1
+        })
+
+        const highest = unbalanced[0]
+
+        const freqDist = {}
+        highest.childWeights.forEach(c => freqDist[`${c.weight}`] = (freqDist[`${c.weight}`] || 0) + 1)
+
+        const anomalousWeight = parseInt(Object.keys(freqDist).find(k => freqDist[k] === 1))
+        const targetTotalWeight = parseInt(Object.keys(freqDist).find(k => k != anomalousWeight))
+        
+        const changeTarget = highest.childWeights.find(c => c.weight == anomalousWeight)
+        console.debug(`Node ${changeTarget.id} has total weight ${changeTarget.weight}, should be ${targetTotalWeight}`)
+        console.debug(`Node ${changeTarget.id} should have own weight of ${changeTarget.selfWeight - (anomalousWeight - targetTotalWeight)}`)
+        return changeTarget.selfWeight - (anomalousWeight - targetTotalWeight)
+    })
 })
 
 puzzle("day8", (data) => {
@@ -110,7 +171,8 @@ puzzle("day8", (data) => {
     const instructions = data.split("\n").map(x => x.trim())
 
     let globalMax = undefined
-    instructions.forEach(instruction => {
+    runIterations("Executing", instructions.length, 1, (_, i) => {
+        const instruction = instructions[i-1]
         interpreter.evaluate(instruction)
         const max = Object.keys(interpreter.registers).map(k => interpreter.registers[k]).sort((a, b) => a > b ? 1 : -1).reverse()[0]
         if (max === undefined) return
@@ -118,9 +180,67 @@ puzzle("day8", (data) => {
         else globalMax = Math.max(max, globalMax)
     })
 
-    const max = Object.keys(interpreter.registers).map(k => interpreter.registers[k]).sort((a, b) => a > b ? 1 : -1).reverse()[0]
-    console.log(`Part 1: Maximum register value is ${max}`)
-    console.log(`Part 2: Maximum register value at any point was ${globalMax}`)
+    part(1, () => Object.keys(interpreter.registers).map(k => interpreter.registers[k]).sort((a, b) => a > b ? 1 : -1).reverse()[0])
+    part(2, () => globalMax)
+})
+
+puzzle("day9", data => {
+    const day9 = require("./day9")
+    const parser = new day9.Parser()
+    parser.parse(data)
+    
+    
+
+    part(1, () => {
+        function scoreGroups(root, score=1) {
+            const children = root.children.filter(c => c.type === "group")
+    
+            return score + children.reduce((sum, c) => sum + scoreGroups(c, score + 1), 0)
+        }
+
+        return scoreGroups(parser.current().children[0])
+    })
+
+    part(2, () => {
+        function countGarbage(root) {
+            const children = root.children.filter(x => x.type === "group")
+            const garbage = root.children.filter(x => x.type === "garbage")
+
+            return children.reduce((sum, c) => sum + countGarbage(c), 0) + garbage.reduce((sum, g) => sum + g.children.length, 0)
+        }
+
+        return countGarbage(parser.current().children[0])
+    })
+})
+
+puzzle("day10", data => {
+    const day10 = require("./day10")
+    part(1, () => {
+        const lengths = data.split(",").map(x => x.trim()).map(parseFloat)
+        let state = new Array(256).fill(0).map((x, i) => i)
+        const hash = day10.round(lengths, state).state
+
+        return hash[0] * hash[1]
+    })
+
+    part(2, () => {
+        return day10.hash(data)
+    })
+})
+
+puzzle("day11", data => {
+    const day11 = require("./day11")
+    const input = data.trim().split(",")
+
+    part(1, () => {
+        const path = day11.steps(input)
+        return path.length
+    })
+
+    part(2, () => {
+        const maxDist = day11.maxDistance(input)
+        return maxDist
+    })
 })
 
 puzzle("day12", () => {
@@ -128,10 +248,9 @@ puzzle("day12", () => {
     const parser = new day12.Parser("data/day12.txt")
     const groups = day12.group(parser)
     
-    const groupWith0 = groups.find(x => x.has(0))
-    console.log(`Part 1: Group with program 0 has ${groupWith0.size} elements`)
-
-    console.log(`Part 2: Total number of groups is ${groups.length}`)
+    const groupWith0 = 
+    part(1, () => groups.find(x => x.has(0)).size)
+    part(2, () => groups.length)
 })
 
 puzzle("day13", () => {
@@ -139,17 +258,16 @@ puzzle("day13", () => {
     const parser = new day13.Parser("data/day13.txt")
     const layers = day13.buildLayers(parser)
     
-    console.log(`Part 1: Trip severity is ${day13.severity(layers)}`)
-
-    console.log(`Part 2: Evasion requires a delay of ${day13.stealthDelay(layers,100000000)}ps`)
+    part(1, () => day13.severity(layers))
+    part(2, () => day13.stealthDelay(layers, 1e9))
 })
 
 puzzle("day14", () => {
     const day14 = require("./day14")
     const grid = day14.buildGrid("hwlqcszp")
-    console.log(`Part 1: There are ${day14.countUsed(grid)} used squares`)
 
-    console.log(`Part 2: There are ${day14.findRegions(grid).length} regions`)
+    part(1, () => day14.countUsed(grid))
+    part(2, () => day14.findRegions(grid).length)
 })
 
 puzzle("day15", () => {
@@ -157,58 +275,93 @@ puzzle("day15", () => {
     const genA = new day15.Generator(883, 16807)
     const genB = new day15.Generator(879, 48271)
 
-    let judge = new day15.Judge(genA, genB)
-    console.log(`Part 1: ${judge.multiSample(40000000)} matches found in the first 40M samples`)
+    part(1, () => {
+        let judge = new day15.Judge(genA, genB)
 
-    genA.reseed(883)
-    genB.reseed(879)
-    const genA2 = new day15.Filter(genA, x => x % 4 === 0)
-    const genB2 = new day15.Filter(genB, x => x % 8 === 0)
-    judge = new day15.Judge(genA2, genB2)
-    console.log(`Part 2: ${judge.multiSample(5000000)} matches found in the first 5M filtered samples`)
+        let matches = 0
+        runIterations("Matching (Unfiltered)", 40e6, 100e3, (c) => {
+            for (let i = 0; i < c; i++)
+                if (judge.sample()) matches++
+        })
+
+        return matches
+    })
+
+    part(2, () => {
+        genA.reseed(883)
+        genB.reseed(879)
+        const genA2 = new day15.Filter(genA, x => x % 4 === 0)
+        const genB2 = new day15.Filter(genB, x => x % 8 === 0)
+        judge = new day15.Judge(genA2, genB2)
+
+        let matches = 0
+        runIterations("Matching (Filtered)", 5e6, 100e3, (c) => {
+            for (let i = 0; i < c; i++)
+                if (judge.sample()) matches++
+        })
+
+        return matches
+    })
 })
 
 puzzle("day16", (data) => {
     const day16 = require("./day16")
     const moves = data.trim().split(",")
-    let positions = day16.dance(moves)
-    console.log(`Part 1: Final positions are '${positions}'`)
 
-    const memoize = {}
-    for (let i = 1; i < 1000000000; i++) {
-        if (!memoize[positions]) {
-            const newPositions = day16.dance(moves, positions)
-            memoize[positions] = newPositions
-        }
+    part(1, () => {
+        let positions = day16.dance(moves)
+        return positions
+    })
 
-        positions = memoize[positions]
+    part(2, () => {
+        let positions = day16.dance(moves)
+        const memoize = {}
 
-    }
-    console.log(`Part 2: Final positions after 1B dances are '${positions}'`)
+        runIterations("Dancing", 1e9, 1e6, (c) => {
+            for (let i = 0; i < c; i++) {
+                if (!memoize[positions]) {
+                    const newPositions = day16.dance(moves, positions)
+                    memoize[positions] = newPositions
+                }
+    
+                positions = memoize[positions]
+            }
+        })
 
+        return positions
+    })
 })
 
 puzzle("day17", () => {
     const day17 = require("./day17")
-    const spinlock = new day17.Spinlock()
-    while(spinlock.max() < 2017)
-        spinlock.next(335)
+    
+    part(1, () => {
+        const spinlock = new day17.Spinlock()
 
-    console.log(`Part 1: The next value in the buffer is ${spinlock.getNext()}`)
+        runIterations("Running", 2017, 1, () => {
+            spinlock.next(335)
+        })
 
-    const predictive = new day17.SpinlockPredictive([0, 1])
-    while(predictive.max() < 50000000) {
-        predictive.next(335)
-    }
+        return spinlock.getNext()
+    })
 
-    console.log(`Part 2: The value after 0 in the buffer is ${predictive.getRootNext()}`)
+    part(2, () => {
+        const spinlock = new day17.SpinlockPredictive()
+
+        runIterations("Running", 50e6, 5e4, (c) => {
+            for(let i = 0; i < c; i++)
+                spinlock.next(335)
+        })
+
+        return spinlock.getRootNext()
+    })
 })
 
 puzzle("day18", data => {
     const day18 = require("./day18")
     const instructions = data.split("\n").map(x => x.trim())
 
-    {
+    part(1, () => {
         const hub = new day18.LoopbackHub()
         const interpreter = new day18.Interpreter(instructions, hub.subscribe(), {safeReceive: 1})
 
@@ -218,13 +371,12 @@ puzzle("day18", data => {
             if (result.type === "rcv" && result.result) {
                 const sendQueue = interpreter.state.hub.queue
                 const lastValue = sendQueue[sendQueue.length - 1]
-                console.log(`Part 1: The first rcv instruction received ${lastValue.value}`)
-                break
+                return lastValue.value
             }
         }
-    }
+    })
 
-    {
+    part(2, () => {
         const hub = new day18.Hub()
         const int1 = new day18.Interpreter(instructions, hub.subscribe(), { p: 0 })
         const int2 = new day18.Interpreter(instructions, hub.subscribe(), { p: 1 })
@@ -237,8 +389,8 @@ puzzle("day18", data => {
         while(result = exec.next());
 
         const sentMessages = subscriber.queue.filter(msg => msg.client === int2.state.hub).length
-        console.log(`Part 2: Program 1 sent ${sentMessages} messages`)
-    }
+        return sentMessages
+    })
 })
 
 puzzle("day19", () => {
@@ -251,24 +403,25 @@ puzzle("day19", () => {
     while(walker.next())
         steps++
 
-    console.log(`Part 1: Full path is '${walker.path.join("")}'`)
-    console.log(`Part 2: ${steps} steps taken`)
+    part(1, () => walker.path.join(""))
+    part(2, () => steps)
 })
 
 puzzle("day20", data => {
     const day20 = require("./day20")
     const parser = new day20.Parser()
 
-    {
+    part(1, () => {
         const pf = parser.parseParticleField(data)
         const center = new day20.Vector(0,0,0)
 
         pf.next(100000)
-        console.log(`Part 1: Nearest after 100k steps is '${pf.nearest(center).id}'`)
-    }
+        return pf.nearest(center).id
+    })
 
-    {
-        console.log(`Part 2: Brute Force Approach`)
+    part(2.1, () => {
+        console.log(`Part 2: Brute Force Approach`.grey)
+        
         /*
          * This approach simply runs the simulation for a number of steps in
          * the hopes that all collisions will have been resolved at the
@@ -288,20 +441,17 @@ puzzle("day20", data => {
          */
         const pf = parser.parseParticleField(data)
         
-        let steps = 0
-        const stepCount = 500
-        while(steps++ < stepCount) {
+        runIterations("Brute Forcing", 500, 1, () => {
             const collisions = pf.findCollisions()
             pf.remove(...collisions)
             pf.next()
-        }
+        })
 
-        console.log(`Part 2: ${pf.particles.length} remaining after ${steps} steps`)
-        console.log()
-    }
+        return pf.particles.length
+    })
 
-    {
-        console.log(`Part 2: Quadratic Search Approach`)
+    part(2, () => {
+        console.log(`Part 2: Quadratic Search Approach`.grey)
         /*
          * This approach uses a quadratic search algorithm to precisely
          * identify the steps at which collisions occur by identifying
@@ -330,8 +480,8 @@ puzzle("day20", data => {
             return current
         }, 0)
 
-        console.log(`Part 2: ${pf.particles.length} remaining after ${Math.max(...collisionSteps)} steps`)
-    }
+        return pf.particles.length
+    })
 })
 
 puzzle("day21", imageData => {
@@ -342,27 +492,60 @@ puzzle("day21", imageData => {
     const rules = new day21.RuleParserSingleLine().parseRules(rulesData)
     const enhancer = new day21.Enhancer(rules)
     
-    {
+    part(1, () => {
         let enhanced = image
-        for (let i = 0; i < 5; i++) {
+
+        runIterations("Enhancing", 5, 1, () => {
             enhanced = enhancer.enhance(enhanced)
-        }
+        })
         
         const onPixels = enhanced.pixels.reduce((sum, row) => {
             return sum + row.reduce((sum, px) => sum + (px ? 1 : 0), 0)
         }, 0)
-        console.log(`Part 1: ${onPixels} are on after 5 iterations (out of ${enhanced.size**2})`)
-    }
+
+        return onPixels
+    })
     
-    {
+    part(2, () => {
         let enhanced = image
-        for (let i = 0; i < 18; i++) {
+
+        runIterations("Enhancing", 18, 1, () => {
             enhanced = enhancer.enhance(enhanced)
-        }
+        })
         
         const onPixels = enhanced.pixels.reduce((sum, row) => {
             return sum + row.reduce((sum, px) => sum + (px ? 1 : 0), 0)
         }, 0)
-        console.log(`Part 2: ${onPixels} are on after 18 iterations (out of ${enhanced.size**2})`)
-    }
+
+        return onPixels
+    })
+})
+
+puzzle("day22", data => {
+    const day22 = require("./day22")
+    const parser = new day22.Parser()
+
+    part(1, () => {
+        const grid = new day22.InfiniteGrid(parser.parseGrid(data))
+        const carrier = new day22.Carrier(grid)
+
+        runIterations("☣ Infecting", 10e3, 100, (_, until) => {
+            while(carrier.stats.moved < until)
+                carrier.next()
+        })
+
+        return carrier.stats.infected
+    })
+
+    part(2, () => {
+        const grid = new day22.InfiniteGrid(parser.parseGrid(data))
+        const carrier = new day22.Carrier(grid, "evolve")
+
+        runIterations("☣ Infecting", 10e6, 1e3, (_, until) => {
+            while(carrier.stats.moved < until)
+                carrier.next()
+        })
+
+        return carrier.stats.infected
+    })
 })
