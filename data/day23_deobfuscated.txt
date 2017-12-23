@@ -1,0 +1,24 @@
+let lowerBound = 79 * 100 + 100000
+let upperBound = b + 17000
+let increment = 17
+
+let numberOfPrimes = 0
+// For each number between b and c, in increments of 17...
+for (let x = lowerBound; x <= upperBound; x += increment) {
+    // Initialize our "found a factor" register to true
+    let isNormalFactor = true
+
+    // Can be re-written much more succinctly by testing
+    // the lower half of the range using modulo
+    for(let factor = 2; factor**2 < x; factor++) {
+        if (!(x % factor)) {
+            isNormalFactor = false
+            break // No need to keep checking after we find a factor
+        }
+    }
+    
+    // If we find a factor, increment our counter
+    if (!isNormalFactor) {
+        numberOfPrimes++
+    }
+}

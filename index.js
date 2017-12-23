@@ -549,3 +549,30 @@ puzzle("day22", data => {
         return carrier.stats.infected
     })
 })
+
+puzzle("day23", data => {
+    const day23 = require("./day23")
+    const instructions = data.split("\n").map(x => x.trim())
+
+    part(1, () => {
+        const interpreter = new day23.Interpreter(instructions, {})
+
+        let mulInvocations = 0
+        while(true) {
+            const result = interpreter.next()
+            if (!result) break
+            if (result.type === "mul") {
+                mulInvocations++
+            }
+        }
+
+        return mulInvocations
+    })
+
+    part(2, () => {
+        let b = 79 * 100 + 100000 // Lower bound
+        let c = b + 17000 // Upper bound
+
+        return day23.findCompositeNumbers(b, c, 17)
+    })
+})

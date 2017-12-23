@@ -1,0 +1,9 @@
+set a 1
+set b 2
+mul a 3
+add b 1
+jnz b 2
+sub a b
+jnz a 2
+jnz 0 -2
+set c 1

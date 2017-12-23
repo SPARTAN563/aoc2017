@@ -1,0 +1,40 @@
+let b = 79 * 100 + 100000
+let c = b + 17000
+
+let f = 0
+let d = 0
+let e = 0
+let g = 0
+let h = 0
+
+// For each number between b and c, in increments of 17...
+for (; b <= c; b += 17) {
+    // Initialize our "found a factor" register to true
+    f = 1
+
+    // Searches for factors of `b`
+    // by testing if d*e == b
+    // TODO: Comment this loop out before running
+    for(d = 2; d < b; d++) {
+        for(e = 2; e < b;) {
+            if (d * e !== b) {
+                f = 0
+                e++
+            }
+        }
+    }
+
+    // Can be re-written much more succinctly by testing
+    // the lower half of the range using modulo
+    for(d = 2; d**2 < b; d++) {
+        if (!(b % d)) {
+            f = 0
+            break // No need to keep checking after we find a factor
+        }
+    }
+    
+    // If we find a factor, increment our counter
+    if (!f) {
+        h++
+    }
+}
