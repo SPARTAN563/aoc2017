@@ -576,3 +576,30 @@ puzzle("day23", data => {
         return day23.findCompositeNumbers(b, c, 17)
     })
 })
+
+puzzle("day24", data => {
+    const day24 = require("./day24")
+    const parser = new day24.Parser()
+    const components = data.trim().split("\n").map(x => parser.parseComponent(x))
+    const builder = new day24.Builder(...components)
+
+    let strongest = null
+    let longest = null
+
+    for(const bridge of builder.build()) {
+        if (!strongest) strongest = bridge
+        if (!longest) longest = bridge
+
+        if (bridge.value > strongest.value) strongest = bridge
+        if (bridge.length > longest.length) longest = bridge
+        else if(bridge.length === longest.length && bridge.value > longest.value) longest = bridge
+    }
+
+    part(1, () => {
+        return strongest.value
+    })
+
+    part(2, () => {
+        return longest.value
+    })
+})
