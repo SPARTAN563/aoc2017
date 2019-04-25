@@ -603,3 +603,94 @@ puzzle("day24", data => {
         return longest.value
     })
 })
+
+puzzle("day25", () => {
+    const day25 = require("./day25")
+
+    const machine = day25.buildMachine("A", {
+        "A": {
+            "0": {
+                write: 1,
+                move: "Right",
+                next: "B"
+            },
+            "1": {
+                write: 0,
+                move: "Left",
+                next: "F"
+            }
+        },
+        "B": {
+            "0": {
+                write: 0,
+                move: "Right",
+                next: "C"
+            },
+            "1": {
+                write: 0,
+                move: "Right",
+                next: "D"
+            }
+        },
+        "C": {
+            "0": {
+                write: 1,
+                move: "Left",
+                next: "D"
+            },
+            "1": {
+                write: 1,
+                move: "Right",
+                next: "E"
+            }
+        },
+        "D": {
+            "0": {
+                write: 0,
+                move: "Left",
+                next: "E"
+            },
+            "1": {
+                write: 0,
+                move: "Left",
+                next: "D"
+            }
+        },
+        "E": {
+            "0": {
+                write: 0,
+                move: "Right",
+                next: "A"
+            },
+            "1": {
+                write: 1,
+                move: "Right",
+                next: "C"
+            }
+        },
+        "F": {
+            "0": {
+                write: 1,
+                move: "Left",
+                next: "A"
+            },
+            "1": {
+                write: 1,
+                move: "Right",
+                next: "A"
+            }
+        }
+    })
+
+    part(1, () => {
+        runIterations("Running", 12994925, 100000, (_, total) => {
+            while(machine.steps < total)
+                machine.next()
+        })
+
+        while(machine.steps < 12994925)
+            machine.next()
+
+        return machine.checksum()
+    })
+})
